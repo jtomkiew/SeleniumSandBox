@@ -11,21 +11,9 @@ namespace SeleniumSandbox
     public class Tester2 : SeleniumNunitTester
     {
         [Test]
-        public void Test1()
+        public void Test21()
         {
-            Thread.Sleep(1000);
-        }
-
-        [Test]
-        public void Test2()
-        {
-            Thread.Sleep(1000);
-        }
-
-        [Test]
-        public void Test3()
-        {
-            Thread.Sleep(1000);
+            Thread.Sleep(5000);
         }
     }
 }

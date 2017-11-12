@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,9 +16,11 @@ namespace SeleniumSandbox
         {
             get
             {
-                if (contexts.TryGetValue(System.Threading.Thread.CurrentThread.ManagedThreadId, out var context))
-                    return context;
-                return null;
+                return (Context) CallContext.LogicalGetData("TContext");
+            }
+            set
+            {
+                CallContext.LogicalSetData("TContext", value);
             }
         }
 
@@ -52,7 +55,8 @@ namespace SeleniumSandbox
 
         public void Init()
         {
-            contexts.TryAdd(System.Threading.Thread.CurrentThread.ManagedThreadId, this);
+            contexts.Add(this);
+            Current = this;
             var chromeService = ChromeDriverService.CreateDefaultService();
             Driver = new ChromeDriver(chromeService);
             Service = chromeService;
@@ -61,7 +65,8 @@ namespace SeleniumSandbox
         public void Dispose()
         {
             Driver.Quit();
-            contexts.TryRemove(System.Threading.Thread.CurrentThread.ManagedThreadId, out var notUsed);
+            contexts.Remove(this);
+            Current = null;
         }
     }
 }

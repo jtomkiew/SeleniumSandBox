@@ -24,7 +24,7 @@ namespace SeleniumSandbox
         public void Teardown()
         {
             Context.CanBeDisposed = true;
-            TimedKiller.StartTimer();
+            TimedKiller.Enable = true;
         }
     }
 }

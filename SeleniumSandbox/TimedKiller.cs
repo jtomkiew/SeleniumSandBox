@@ -10,16 +10,26 @@ namespace SeleniumSandbox
 {
     public class TimedKiller
     {
-        private static object obj = new object();
         private static object locker = new object();
+        public static AutoResetEvent REvent;
 
         private static Timer timer;
+        public static bool Enable = false;
 
-        protected static ConcurrentDictionary<int, Context> contexts = new ConcurrentDictionary<int, Context>();
+        protected static List<Context> contexts = new List<Context>();
 
         public static void Check(Object stateInfo)
         {
-            contexts.Select(c => c.Value).Where(v => v.CanBeDisposed).ToList().ForEach(c => c.Dispose());
+            if (timer == null || !Enable)
+                return;
+            
+            contexts.Where(v => v.CanBeDisposed).ToList().ForEach(c => c.Dispose());
+            if (contexts.Count == 0)
+            {
+                timer.Dispose();
+                timer = null;
+                ((AutoResetEvent) stateInfo).Set();
+            }
         }
 
         public static void StartTimer()
@@ -30,7 +40,8 @@ namespace SeleniumSandbox
                 {
                     if (timer == null)
                     {
-                        timer = new Timer(Check, obj, 1000, 1000);
+                        REvent = new AutoResetEvent(false);
+                        timer = new Timer(Check, REvent, 1000, 1000);
                     }
                 }
             }
